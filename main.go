@@ -1,4 +1,4 @@
-package main
+package stun
 
 import (
 	"encoding/binary"
@@ -33,10 +33,10 @@ func runClient() {
 		panic(err)
 	}
 
-	_, err = decode(buf)
-	if err != nil {
-		panic(err)
-	}
+	// _, err = decode(buf)
+	// if err != nil {
+	// 	panic(err)
+	// }
 
 	length := binary.BigEndian.Uint16(buf[2:])
 
