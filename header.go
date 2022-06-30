@@ -20,9 +20,9 @@ func (h header) encode() []byte {
 	output := make([]byte, 20)
 	class := uint16(h.class)
 
-	classBytes := (class & 0b10 << 7) | (class & 0b01 << 4)
+	classBytes := (class&0b10)<<7 | (class&0b01)<<4
 
-	methodBytes := (uint16(h.method) & 0x000F) | (uint16(h.method) & 0x70 << 1) | (uint16(h.method) & 0xF80 << 2)
+	methodBytes := (uint16(h.method) & 0x000F) | (uint16(h.method)&0x70)<<1 | (uint16(h.method)&0xF80)<<2
 
 	typeBytes := classBytes | methodBytes
 	binary.BigEndian.PutUint16(output[0:2], typeBytes)
@@ -61,8 +61,8 @@ func decodeHeader(headerBytes []byte) (header, error) {
 	length := binary.BigEndian.Uint16(headerBytes[2:])
 
 	messageType := binary.BigEndian.Uint16(headerBytes[0:])
-	class := uint8((messageType & 0x010 >> 4) | (messageType & 0x100 >> 7))
-	method := uint8((messageType & 0x000F) | (messageType & 0x00E0 >> 1) | (messageType & 0x1F00 >> 2))
+	class := uint8((messageType&0x010)>>4 | (messageType&0x100)>>7)
+	method := uint8((messageType & 0x000F) | (messageType&0x00E0)>>1 | (messageType&0x1F00)>>2)
 
 	var transactionId [transactionIdLength]byte
 	copy(transactionId[:], headerBytes[8:20])
