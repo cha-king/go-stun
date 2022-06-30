@@ -20,5 +20,5 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Println(remoteAddr)
+	fmt.Printf("%+v\n", remoteAddr)
 }
