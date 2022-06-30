@@ -35,13 +35,12 @@ func newMessage(class uint8, method uint8, attributes []attribute) message {
 
 func decodeMessage(messageBytes []byte) (message, error) {
 	headerBytes := messageBytes[:20]
-	attributeBytes := messageBytes[20:]
-
 	header, err := decodeHeader(headerBytes)
 	if err != nil {
 		return message{}, err
 	}
 
+	attributeBytes := messageBytes[20 : 20+header.length]
 	a, err := decodeAttribute(attributeBytes)
 	if err != nil {
 		return message{}, err
