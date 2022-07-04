@@ -15,7 +15,15 @@ func main() {
 		panic(err)
 	}
 
-	remoteAddr, err := stun.Bind(addr)
+	conn, err := net.ListenUDP("udp4", nil)
+	if err != nil {
+		panic(err)
+	}
+	defer conn.Close()
+
+	client := stun.NewClient(conn, addr)
+
+	remoteAddr, err := client.Bind()
 	if err != nil {
 		panic(err)
 	}
