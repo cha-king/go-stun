@@ -6,26 +6,21 @@ import (
 )
 
 type Client struct {
-	conn net.PacketConn
+	conn net.Conn
 }
 
-func (c *Client) BindRequest(remoteAddr *net.UDPAddr) (net.UDPAddr, error) {
+func (c *Client) BindRequest() (net.UDPAddr, error) {
 	m := newMessage(MessageClassRequest, MessageMethodBinding, nil)
 
-	_, err := c.conn.WriteTo(m.encode(), remoteAddr)
+	_, err := c.conn.Write(m.encode())
 	if err != nil {
 		return net.UDPAddr{}, err
 	}
 
-	// TODO: Discard stun messages from unknown senders rather than error
 	buf := make([]byte, 256)
-
-	_, respAddr, err := c.conn.ReadFrom(buf)
+	_, err = c.conn.Read(buf)
 	if err != nil {
 		return net.UDPAddr{}, err
-	}
-	if remoteAddr.String() != respAddr.String() {
-		return net.UDPAddr{}, errors.New("unknown sender")
 	}
 
 	r, err := decodeMessage(buf)
@@ -53,13 +48,13 @@ func (c *Client) BindRequest(remoteAddr *net.UDPAddr) (net.UDPAddr, error) {
 func (c *Client) BindIndication(remoteAddr *net.UDPAddr) error {
 	m := newMessage(MessageClassIndication, MessageMethodBinding, nil)
 
-	_, err := c.conn.WriteTo(m.encode(), remoteAddr)
+	_, err := c.conn.Write(m.encode())
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func NewClient(conn net.PacketConn) *Client {
+func NewClient(conn net.Conn) *Client {
 	return &Client{conn}
 }
