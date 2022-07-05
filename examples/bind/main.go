@@ -15,15 +15,15 @@ func main() {
 		panic(err)
 	}
 
-	conn, err := net.ListenUDP("udp4", nil)
+	conn, err := net.DialUDP("udp4", nil, addr)
 	if err != nil {
 		panic(err)
 	}
 	defer conn.Close()
 
-	client := stun.NewClient(conn, addr)
+	client := stun.NewClient(conn)
 
-	remoteAddr, err := client.Bind()
+	remoteAddr, err := client.BindRequest()
 	if err != nil {
 		panic(err)
 	}
