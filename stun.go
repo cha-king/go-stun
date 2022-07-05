@@ -10,7 +10,7 @@ type Client struct {
 	addr *net.UDPAddr
 }
 
-func (c *Client) Bind() (net.UDPAddr, error) {
+func (c *Client) BindRequest() (net.UDPAddr, error) {
 	m := newMessage(MessageClassRequest, MessageMethodBinding, nil)
 
 	_, err := c.conn.WriteToUDP(m.encode(), c.addr)
@@ -48,6 +48,16 @@ func (c *Client) Bind() (net.UDPAddr, error) {
 	}
 
 	return addr, nil
+}
+
+func (c *Client) BindIndication() error {
+	m := newMessage(MessageClassIndication, MessageMethodBinding, nil)
+
+	_, err := c.conn.WriteToUDP(m.encode(), c.addr)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func NewClient(conn *net.UDPConn, addr *net.UDPAddr) *Client {
