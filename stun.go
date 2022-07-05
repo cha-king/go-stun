@@ -6,24 +6,25 @@ import (
 )
 
 type Client struct {
-	conn *net.UDPConn
+	conn net.PacketConn
 }
 
 func (c *Client) BindRequest(remoteAddr *net.UDPAddr) (net.UDPAddr, error) {
 	m := newMessage(MessageClassRequest, MessageMethodBinding, nil)
 
-	_, err := c.conn.WriteToUDP(m.encode(), remoteAddr)
+	_, err := c.conn.WriteTo(m.encode(), remoteAddr)
 	if err != nil {
 		return net.UDPAddr{}, err
 	}
 
 	// TODO: Discard stun messages from unknown senders rather than error
 	buf := make([]byte, 256)
-	_, respAddr, err := c.conn.ReadFromUDP(buf)
+
+	_, respAddr, err := c.conn.ReadFrom(buf)
 	if err != nil {
 		return net.UDPAddr{}, err
 	}
-	if !compareUdpAddr(remoteAddr, respAddr) {
+	if remoteAddr.String() != respAddr.String() {
 		return net.UDPAddr{}, errors.New("unknown sender")
 	}
 
@@ -52,26 +53,13 @@ func (c *Client) BindRequest(remoteAddr *net.UDPAddr) (net.UDPAddr, error) {
 func (c *Client) BindIndication(remoteAddr *net.UDPAddr) error {
 	m := newMessage(MessageClassIndication, MessageMethodBinding, nil)
 
-	_, err := c.conn.WriteToUDP(m.encode(), remoteAddr)
+	_, err := c.conn.WriteTo(m.encode(), remoteAddr)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func NewClient(conn *net.UDPConn) *Client {
+func NewClient(conn net.PacketConn) *Client {
 	return &Client{conn}
-}
-
-func compareUdpAddr(base *net.UDPAddr, ref *net.UDPAddr) bool {
-	if !base.IP.Equal(ref.IP) {
-		return false
-	}
-	if base.Port != ref.Port {
-		return false
-	}
-	if base.Zone != ref.Zone {
-		return false
-	}
-	return true
 }
