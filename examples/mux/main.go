@@ -13,7 +13,7 @@ const (
 	peerUrl  = "35.87.220.143:50000"
 )
 
-func wrapConnection(conn *net.UDPConn, stunAddr *net.UDPAddr) net.Conn {
+func wrapConnection(conn net.Conn) net.Conn {
 	leftConn, rightConn := net.Pipe()
 
 	go func() {
@@ -23,7 +23,7 @@ func wrapConnection(conn *net.UDPConn, stunAddr *net.UDPAddr) net.Conn {
 			if err != nil {
 				panic(err)
 			}
-			conn.WriteTo(buf[:n], stunAddr)
+			conn.Write(buf[:n])
 		}
 	}()
 
@@ -57,12 +57,12 @@ func main() {
 		panic(err)
 	}
 
-	conn, err := net.ListenUDP("udp4", localAddr)
+	conn, err := net.DialUDP("udp4", localAddr, stunAddr)
 	if err != nil {
 		panic(err)
 	}
 
-	wrappedConn := wrapConnection(conn, stunAddr)
+	wrappedConn := wrapConnection(conn)
 
 	client := stun.NewClient(wrappedConn)
 
