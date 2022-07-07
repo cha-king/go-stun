@@ -6,19 +6,19 @@ import (
 )
 
 type Client struct {
-	conn net.Conn
+	conn net.PacketConn
 }
 
-func (c *Client) BindRequest() (net.UDPAddr, error) {
+func (c *Client) BindRequest(addr net.Addr) (net.UDPAddr, error) {
 	m := newMessage(MessageClassRequest, MessageMethodBinding, nil)
 
-	_, err := c.conn.Write(m.encode())
+	_, err := c.conn.WriteTo(m.encode(), addr)
 	if err != nil {
 		return net.UDPAddr{}, err
 	}
 
 	buf := make([]byte, 256)
-	_, err = c.conn.Read(buf)
+	_, _, err = c.conn.ReadFrom(buf)
 	if err != nil {
 		return net.UDPAddr{}, err
 	}
@@ -37,24 +37,24 @@ func (c *Client) BindRequest() (net.UDPAddr, error) {
 	if !ok {
 		return net.UDPAddr{}, errors.New("unsupported attribute")
 	}
-	addr, err := mAddr.getAddress()
+	localaddr, err := mAddr.getAddress()
 	if err != nil {
 		return net.UDPAddr{}, err
 	}
 
-	return addr, nil
+	return localaddr, nil
 }
 
 func (c *Client) BindIndication(remoteAddr *net.UDPAddr) error {
 	m := newMessage(MessageClassIndication, MessageMethodBinding, nil)
 
-	_, err := c.conn.Write(m.encode())
+	_, err := c.conn.WriteTo(m.encode(), remoteAddr)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func NewClient(conn net.Conn) *Client {
+func NewClient(conn net.PacketConn) *Client {
 	return &Client{conn}
 }
