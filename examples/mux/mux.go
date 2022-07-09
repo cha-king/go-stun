@@ -10,26 +10,25 @@ type virtualConn struct {
 }
 
 func (c *virtualConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
-	return c.conn.ReadFrom(p)
+	panic("method not implemented")
 }
-
 func (c *virtualConn) WriteTo(p []byte, addr net.Addr) (n int, err error) {
-	return c.conn.WriteTo(p, addr)
+	panic("method not implemented")
 }
 func (c *virtualConn) Close() error {
-	return c.conn.Close()
+	panic("method not implemented")
 }
 func (c *virtualConn) LocalAddr() net.Addr {
-	return c.conn.LocalAddr()
+	panic("method not implemented")
 }
 func (c *virtualConn) SetDeadline(t time.Time) error {
-	return c.conn.SetDeadline(t)
+	panic("method not implemented")
 }
 func (c *virtualConn) SetReadDeadline(t time.Time) error {
-	return c.conn.SetReadDeadline(t)
+	panic("method not implemented")
 }
 func (c *virtualConn) SetWriteDeadline(t time.Time) error {
-	return c.conn.SetWriteDeadline(t)
+	panic("method not implemented")
 }
 
 func multiplexConn(conn net.PacketConn) (stunConn net.PacketConn, appConn net.PacketConn) {
