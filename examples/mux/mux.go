@@ -6,12 +6,23 @@ import (
 )
 
 type virtualConn struct {
-	conn net.PacketConn
+	readChan chan readMsg
+}
+
+type readMsg struct {
+	p    []byte
+	addr net.Addr
+	err  error
 }
 
 func (c *virtualConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
-	panic("method not implemented")
+	// TODO: Add state to virtualConn to track when single packet hasn't been fully read
+	msg := <-c.readChan
+	n = copy(p, msg.p)
+	addr, err = msg.addr, msg.err
+	return
 }
+
 func (c *virtualConn) WriteTo(p []byte, addr net.Addr) (n int, err error) {
 	panic("method not implemented")
 }
