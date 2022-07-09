@@ -6,8 +6,8 @@ import (
 )
 
 type virtualConn struct {
-	readChan  chan readMsg
-	writeChan chan writeMsg
+	readChan  <-chan readMsg
+	writeChan chan<- writeMsg
 }
 
 type readMsg struct {
