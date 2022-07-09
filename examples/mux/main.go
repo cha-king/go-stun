@@ -23,7 +23,7 @@ func main() {
 
 	// stunConn, _ := multiplexConn(conn)
 
-	stunConn := NewVirtualConn(conn)
+	stunConn, _ := NewVirtualConn(conn)
 
 	client := stun.NewClient(stunConn)
 
