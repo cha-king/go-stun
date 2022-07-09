@@ -69,22 +69,25 @@ func NewVirtualConn(conn net.PacketConn) (stunConn net.PacketConn, appConn net.P
 	// Reader goroutine
 	go func() {
 		buf := make([]byte, 1024)
-		n, addr, err := conn.ReadFrom(buf)
-		// Safe to pass buf without copy, since consumer copies for us
-		msg := readMsg{buf[:n], addr, err}
+		for {
+			n, addr, err := conn.ReadFrom(buf)
+			// Safe to pass buf without copy, since consumer copies for us
+			msg := readMsg{buf[:n], addr, err}
 
-		if isStunMessage(buf[:n]) {
-			readChanStun <- msg
-		} else {
-			readChanApp <- msg
+			if isStunMessage(buf[:n]) {
+				readChanStun <- msg
+			} else {
+				readChanApp <- msg
+			}
 		}
 	}()
 
 	// Writer goroutine
 	go func() {
-		msg := <-writeChan
-		// TODO: Handle errors returned from WriteTo, maybe separate chan
-		conn.WriteTo(msg.p, msg.addr)
+		for msg := range writeChan {
+			// TODO: Handle errors returned from WriteTo, maybe separate chan
+			conn.WriteTo(msg.p, msg.addr)
+		}
 	}()
 
 	stunConn = &virtualConn{readChanStun, writeChan}
