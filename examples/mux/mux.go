@@ -33,5 +33,5 @@ func (c *logicalConn) SetWriteDeadline(t time.Time) error {
 }
 
 func multiplexConn(conn net.PacketConn) (stunConn net.PacketConn, appConn net.PacketConn) {
-	return conn, conn
+	return &logicalConn{conn}, &logicalConn{conn}
 }
