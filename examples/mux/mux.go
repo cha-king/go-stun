@@ -54,6 +54,30 @@ func (c *virtualConn) SetWriteDeadline(t time.Time) error {
 	panic("method not implemented")
 }
 
-func multiplexConn(conn net.PacketConn) (stunConn net.PacketConn, appConn net.PacketConn) {
-	return &virtualConn{conn}, &virtualConn{conn}
+func NewVirtualConn(conn net.PacketConn) net.PacketConn {
+	// TODO: Sanity check buffer size
+	readChan := make(chan readMsg, 1024)
+	writeChan := make(chan writeMsg, 1024)
+
+	// TODO: Discard messages if buffers / channels are full
+
+	// TODO: Contexts and things for gracefully handling goroutines
+
+	// Reader goroutine
+	go func() {
+		buf := make([]byte, 1024)
+		n, addr, err := conn.ReadFrom(buf)
+		// Safe to pass buf without copy, since consumer copies for us
+		msg := readMsg{buf[:n], addr, err}
+		readChan <- msg
+	}()
+
+	// Writer goroutine
+	go func() {
+		msg := <-writeChan
+		// TODO: Handle errors returned from WriteTo, maybe separate chan
+		conn.WriteTo(msg.p, msg.addr)
+	}()
+
+	return &virtualConn{readChan, writeChan}
 }
