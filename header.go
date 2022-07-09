@@ -46,7 +46,7 @@ func newHeader(class uint8, method uint8) header {
 	return header{class, method, 0, transactionId}
 }
 
-func decodeHeader(headerBytes []byte) (header, error) {
+func DecodeHeader(headerBytes []byte) (header, error) {
 	// Check first two bites
 	if binary.BigEndian.Uint16(headerBytes[0:])>>14&0b11 != 0b00 {
 		return header{}, errors.New("unable to parse header")
