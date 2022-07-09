@@ -21,7 +21,9 @@ func main() {
 	}
 	defer conn.Close()
 
-	stunConn, _ := multiplexConn(conn)
+	// stunConn, _ := multiplexConn(conn)
+
+	stunConn := NewVirtualConn(conn)
 
 	client := stun.NewClient(stunConn)
 
