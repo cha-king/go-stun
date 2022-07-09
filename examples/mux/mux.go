@@ -6,13 +6,19 @@ import (
 )
 
 type virtualConn struct {
-	readChan chan readMsg
+	readChan  chan readMsg
+	writeChan chan writeMsg
 }
 
 type readMsg struct {
 	p    []byte
 	addr net.Addr
 	err  error
+}
+
+type writeMsg struct {
+	p    []byte
+	addr net.Addr
 }
 
 func (c *virtualConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
@@ -24,7 +30,13 @@ func (c *virtualConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
 }
 
 func (c *virtualConn) WriteTo(p []byte, addr net.Addr) (n int, err error) {
-	panic("method not implemented")
+	pCopy := make([]byte, len(p))
+	n = copy(pCopy, p)
+
+	msg := writeMsg{pCopy, addr}
+
+	c.writeChan <- msg
+	return
 }
 func (c *virtualConn) Close() error {
 	panic("method not implemented")
