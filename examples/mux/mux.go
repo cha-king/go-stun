@@ -5,33 +5,33 @@ import (
 	"time"
 )
 
-type logicalConn struct {
+type virtualConn struct {
 	conn net.PacketConn
 }
 
-func (c *logicalConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
+func (c *virtualConn) ReadFrom(p []byte) (n int, addr net.Addr, err error) {
 	return c.conn.ReadFrom(p)
 }
 
-func (c *logicalConn) WriteTo(p []byte, addr net.Addr) (n int, err error) {
+func (c *virtualConn) WriteTo(p []byte, addr net.Addr) (n int, err error) {
 	return c.conn.WriteTo(p, addr)
 }
-func (c *logicalConn) Close() error {
+func (c *virtualConn) Close() error {
 	return c.conn.Close()
 }
-func (c *logicalConn) LocalAddr() net.Addr {
+func (c *virtualConn) LocalAddr() net.Addr {
 	return c.conn.LocalAddr()
 }
-func (c *logicalConn) SetDeadline(t time.Time) error {
+func (c *virtualConn) SetDeadline(t time.Time) error {
 	return c.conn.SetDeadline(t)
 }
-func (c *logicalConn) SetReadDeadline(t time.Time) error {
+func (c *virtualConn) SetReadDeadline(t time.Time) error {
 	return c.conn.SetReadDeadline(t)
 }
-func (c *logicalConn) SetWriteDeadline(t time.Time) error {
+func (c *virtualConn) SetWriteDeadline(t time.Time) error {
 	return c.conn.SetWriteDeadline(t)
 }
 
 func multiplexConn(conn net.PacketConn) (stunConn net.PacketConn, appConn net.PacketConn) {
-	return &logicalConn{conn}, &logicalConn{conn}
+	return &virtualConn{conn}, &virtualConn{conn}
 }
