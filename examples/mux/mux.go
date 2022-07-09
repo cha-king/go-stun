@@ -3,6 +3,8 @@ package main
 import (
 	"net"
 	"time"
+
+	"github.com/cha-king/go-stun"
 )
 
 type virtualConn struct {
@@ -54,9 +56,10 @@ func (c *virtualConn) SetWriteDeadline(t time.Time) error {
 	panic("method not implemented")
 }
 
-func NewVirtualConn(conn net.PacketConn) net.PacketConn {
+func NewVirtualConn(conn net.PacketConn) (stunConn net.PacketConn, appConn net.PacketConn) {
 	// TODO: Sanity check buffer size
-	readChan := make(chan readMsg, 1024)
+	readChanStun := make(chan readMsg, 1024)
+	readChanApp := make(chan readMsg, 1024)
 	writeChan := make(chan writeMsg, 1024)
 
 	// TODO: Discard messages if buffers / channels are full
@@ -69,7 +72,12 @@ func NewVirtualConn(conn net.PacketConn) net.PacketConn {
 		n, addr, err := conn.ReadFrom(buf)
 		// Safe to pass buf without copy, since consumer copies for us
 		msg := readMsg{buf[:n], addr, err}
-		readChan <- msg
+
+		if isStunMessage(buf[:n]) {
+			readChanStun <- msg
+		} else {
+			readChanApp <- msg
+		}
 	}()
 
 	// Writer goroutine
@@ -79,5 +87,13 @@ func NewVirtualConn(conn net.PacketConn) net.PacketConn {
 		conn.WriteTo(msg.p, msg.addr)
 	}()
 
-	return &virtualConn{readChan, writeChan}
+	stunConn = &virtualConn{readChanStun, writeChan}
+	appConn = &virtualConn{readChanApp, writeChan}
+	return
+}
+
+func isStunMessage(p []byte) bool {
+	// TODO: This should maybe be its own function. Probably useful for stun package.
+	_, err := stun.DecodeHeader(p)
+	return err == nil
 }
