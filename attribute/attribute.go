@@ -30,6 +30,12 @@ func Decode(attributeBytes []byte) (Attribute, error) {
 	attributeValue := attributeBytes[4 : 4+attributeLength]
 
 	switch attributeType {
+	case typeMappedAddress:
+		a, err := decodeMappedAddress(attributeValue)
+		if err != nil {
+			return nil, err
+		}
+		return a, nil
 	case typeXorMappedAddress:
 		a, err := decodeXorMappedAddress(attributeValue)
 		if err != nil {

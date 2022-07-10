@@ -4,6 +4,7 @@ package attribute
 const MessageMagicCookie uint32 = 0x2112A442
 
 const (
+	typeMappedAddress    uint16 = 0x0001
 	typeXorMappedAddress uint16 = 0x0020
 )
 
