@@ -23,7 +23,7 @@ type message struct {
 func (m message) encode() []byte {
 	messageBytes := m.header.encode()
 	for _, a := range m.attributes {
-		attributesBytes := attribute.EncodeAttribute(a)
+		attributesBytes := attribute.Encode(a)
 		messageBytes = append(messageBytes, attributesBytes...)
 	}
 	return messageBytes
@@ -43,7 +43,7 @@ func decodeMessage(messageBytes []byte) (message, error) {
 	}
 
 	attributeBytes := messageBytes[20 : 20+header.length]
-	a, err := attribute.DecodeAttribute(attributeBytes)
+	a, err := attribute.Decode(attributeBytes)
 	if err != nil {
 		return message{}, err
 	}

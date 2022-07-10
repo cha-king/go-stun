@@ -10,7 +10,7 @@ type Attribute interface {
 	getValue() []byte
 }
 
-func EncodeAttribute(a Attribute) []byte {
+func Encode(a Attribute) []byte {
 	aType := a.getType()
 	value := a.getValue()
 	length := len(value)
@@ -24,7 +24,7 @@ func EncodeAttribute(a Attribute) []byte {
 	return output
 }
 
-func DecodeAttribute(attributeBytes []byte) (Attribute, error) {
+func Decode(attributeBytes []byte) (Attribute, error) {
 	attributeType := binary.BigEndian.Uint16(attributeBytes[0:])
 	attributeLength := binary.BigEndian.Uint16(attributeBytes[2:])
 	attributeValue := attributeBytes[4 : 4+attributeLength]
