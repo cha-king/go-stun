@@ -17,6 +17,7 @@ func (c *Client) BindRequest(addr net.Addr) (net.UDPAddr, error) {
 		return net.UDPAddr{}, err
 	}
 
+	// TODO: Handle receiving from wrong IP
 	buf := make([]byte, 256)
 	_, _, err = c.conn.ReadFrom(buf)
 	if err != nil {
