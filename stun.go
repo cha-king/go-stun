@@ -3,6 +3,8 @@ package stun
 import (
 	"errors"
 	"net"
+
+	"github.com/cha-king/go-stun/attribute"
 )
 
 type Client struct {
@@ -34,11 +36,11 @@ func (c *Client) BindRequest(addr net.Addr) (net.UDPAddr, error) {
 	}
 
 	attr := r.attributes[0]
-	mAddr, ok := attr.(xorMappedAddress)
+	mAddr, ok := attr.(attribute.XorMappedAddress)
 	if !ok {
 		return net.UDPAddr{}, errors.New("unsupported attribute")
 	}
-	localaddr, err := mAddr.getAddress()
+	localaddr, err := mAddr.GetAddress()
 	if err != nil {
 		return net.UDPAddr{}, err
 	}
