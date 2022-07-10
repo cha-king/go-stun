@@ -19,8 +19,8 @@ func (a XorMappedAddress) getType() uint16 {
 
 func (a XorMappedAddress) getValue() []byte {
 	b := make([]byte, 8)
-	binary.BigEndian.PutUint16(b, uint16(a.family))
-	binary.BigEndian.PutUint16(b, uint16(a.xPort))
+	binary.BigEndian.PutUint16(b[0:], uint16(a.family))
+	binary.BigEndian.PutUint16(b[2:], uint16(a.xPort))
 	b = append(b, a.xAddress...)
 	return b
 }

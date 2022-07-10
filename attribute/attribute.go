@@ -16,8 +16,8 @@ func Encode(a Attribute) []byte {
 	length := len(value)
 
 	output := make([]byte, length+4)
-	binary.BigEndian.PutUint16(output, aType)
-	binary.BigEndian.PutUint16(output, uint16(length))
+	binary.BigEndian.PutUint16(output[0:], aType)
+	binary.BigEndian.PutUint16(output[2:], uint16(length))
 
 	output = append(output, value...)
 
